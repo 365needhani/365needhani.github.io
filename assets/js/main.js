@@ -43,6 +43,29 @@
   }
 })();
 
+/* 홈 안내 팝업: "오늘 하루 보지 않기"를 누르면 오늘 자정까지 다시 띄우지 않습니다 */
+(function () {
+  var pop = document.getElementById('promo-popup');
+  if (!pop) return;
+  var KEY = 'promo-popup-hide-until';
+  function hiddenUntil() { try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch (e) { return 0; } }
+  if (Date.now() < hiddenUntil()) return;
+  function close() { pop.hidden = true; document.removeEventListener('keydown', onKey); }
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  pop.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-popup]');
+    if (b) {
+      if (b.dataset.popup === 'today') {
+        var mid = new Date(); mid.setHours(24, 0, 0, 0);
+        try { localStorage.setItem(KEY, String(mid.getTime())); } catch (err) {}
+      }
+      close();
+    } else if (e.target === pop) close();
+  });
+  document.addEventListener('keydown', onKey);
+  pop.hidden = false;
+})();
+
 /* 첫 화면 사진 슬라이드: 일정 시간마다 다음 사진으로 페이드 */
 (function () {
   var box = document.querySelector('.hero-bg, .hero-slides');

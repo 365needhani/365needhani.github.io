@@ -50,20 +50,40 @@
   var KEY = 'promo-popup-hide-until';
   function hiddenUntil() { try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch (e) { return 0; } }
   if (Date.now() < hiddenUntil()) return;
-  function close() { pop.hidden = true; document.removeEventListener('keydown', onKey); }
-  function onKey(e) { if (e.key === 'Escape') close(); }
+  // 여러 장이면 좌우로 넘기는 슬라이드 (자동 넘김, 마우스 올리면 멈춤)
+  var slides = pop.querySelectorAll('.popup-img'), dots = pop.querySelectorAll('.popup-dots li'), cur = 0, timer;
+  function go(n) {
+    if (slides.length < 2) return;
+    slides[cur].classList.remove('is-on'); dots[cur] && dots[cur].classList.remove('is-on');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('is-on'); dots[cur] && dots[cur].classList.add('is-on');
+  }
+  function auto() { stopAuto(); if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) timer = setInterval(function () { go(cur + 1); }, parseInt(pop.querySelector('.popup-slides').dataset.interval, 10) || 4500); }
+  function stopAuto() { clearInterval(timer); }
+  function close() { pop.hidden = true; stopAuto(); document.removeEventListener('keydown', onKey); }
+  function onKey(e) { if (e.key === 'Escape') close(); if (e.key === 'ArrowLeft') { go(cur - 1); auto(); } if (e.key === 'ArrowRight') { go(cur + 1); auto(); } }
   pop.addEventListener('click', function (e) {
     var b = e.target.closest('[data-popup]');
     if (b) {
-      if (b.dataset.popup === 'today') {
+      var act = b.dataset.popup;
+      if (act === 'prev') { go(cur - 1); auto(); return; }
+      if (act === 'next') { go(cur + 1); auto(); return; }
+      if (act === 'today') {
         var mid = new Date(); mid.setHours(24, 0, 0, 0);
         try { localStorage.setItem(KEY, String(mid.getTime())); } catch (err) {}
       }
       close();
     } else if (e.target === pop) close();
   });
+  pop.addEventListener('mouseenter', stopAuto);
+  pop.addEventListener('mouseleave', auto);
+  // 손가락으로 좌우 넘기기
+  var x0 = null;
+  pop.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; stopAuto(); }, { passive: true });
+  pop.addEventListener('touchend', function (e) { if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); auto(); });
   document.addEventListener('keydown', onKey);
   pop.hidden = false;
+  auto();
 })();
 
 /* 첫 화면 사진 슬라이드: 일정 시간마다 다음 사진으로 페이드 */

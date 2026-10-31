@@ -418,15 +418,57 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
 .popup { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0,20,18,.6); animation: popup-in .25s ease-out; }
 .popup[hidden] { display: none; }
 .popup-box { position: relative; width: min(92vw, 420px); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
-.popup-img { display: block; min-height: 0; flex: 1 1 auto; overflow: hidden; background: #111; }
-.popup-img img { display: block; width: 100%; height: 100%; max-height: calc(100vh - 32px - 54px); max-height: calc(100dvh - 32px - 54px); object-fit: contain; }
-.popup-x { position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.popup-slides { position: relative; min-height: 0; flex: 1 1 auto; background: #111; aspect-ratio: 1 / 1; max-height: calc(100vh - 32px - 54px); max-height: calc(100dvh - 32px - 54px); }
+.popup-img { display: block; width: 100%; height: 100%; }
+.has-slides .popup-img { position: absolute; inset: 0; opacity: 0; transition: opacity .5s; pointer-events: none; }
+.has-slides .popup-img.is-on { opacity: 1; pointer-events: auto; }
+.popup-img img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.popup-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255,255,255,.88); color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; z-index: 2; }
+.popup-arrow svg { width: 20px; height: 20px; }
+.popup-arrow.is-prev { left: 8px; } .popup-arrow.is-prev svg { transform: rotate(180deg); }
+.popup-arrow.is-next { right: 8px; }
+.popup-dots { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 6px; margin: 0; padding: 0; list-style: none; z-index: 2; }
+.popup-dots li { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.popup-dots li.is-on { background: var(--yellow); }
+.popup-x { position: absolute; top: 8px; right: 8px; z-index: 3; width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer; }
 .popup-bar { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
 .popup-bar button { min-height: 54px; border: 0; background: var(--white); color: var(--muted); font: inherit; font-weight: 600; font-size: .96rem; cursor: pointer; }
 .popup-bar button + button { border-left: 1px solid var(--line); }
 .popup-bar button.is-main { color: var(--ink); background: var(--paper); }
 .popup-bar button:hover { background: var(--yellow); color: var(--ink); }
 @keyframes popup-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 방송 출연 페이지 ---------- */
+.media-sec { padding-top: 0; }
+.media-video { margin: 0; }
+.media-video video, .media-video img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius); background: #111; }
+.media-video.is-pending { position: relative; }
+.media-video.is-pending img { filter: brightness(.6); }
+.media-pending { position: absolute; left: 50%; top: calc(50% - 14px); transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--ink); font-weight: 600; font-size: .95rem; white-space: nowrap; }
+.media-pending svg { width: 22px; height: 22px; color: var(--green); }
+.media-video figcaption { margin-top: 10px; font-size: .9rem; color: var(--muted); }
+.media-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 28px 0 0; }
+@media (min-width: 900px) { .media-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+.media-facts div { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.media-facts dt { font-size: .82rem; color: var(--muted); margin-bottom: 4px; }
+.media-facts dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.media-body { display: grid; gap: 14px; font-size: 1.06rem; line-height: 1.85; }
+.media-body p { color: var(--text); }
+.media-related { margin-top: 28px; }
+.media-related .hero-tags { margin-top: 10px; }
+.media-note { margin-top: 24px; color: var(--muted); }
+
+/* 소개 페이지의 방송 출연 카드 */
+.media-card { display: grid; gap: 0; background: var(--white); border: 1px solid var(--line); border-radius: calc(var(--radius) + 4px); overflow: hidden; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s, box-shadow .15s; }
+.media-card:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+@media (min-width: 900px) { .media-card { grid-template-columns: 1.1fr 1fr; } }
+.media-card-img img { display: block; width: 100%; height: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.media-card-body { display: grid; gap: 10px; align-content: center; padding: 24px; }
+@media (min-width: 900px) { .media-card-body { padding: 32px 36px; } }
+.media-card-body .eyebrow { margin: 0; }
+.media-card-title { font-size: 1.3rem; font-weight: 700; line-height: 1.35; color: var(--ink); }
+.media-card-copy { color: var(--muted); }
+.media-card-body .text-link { justify-self: start; margin-top: 4px; }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
 
